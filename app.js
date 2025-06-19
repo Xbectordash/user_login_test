@@ -1,20 +1,27 @@
 const express = require('express');
 const app = express();
-const { ensureDatabaseExists, connectDB } = require('./src/config/database');
-const { initDB } = require('./src/model/initDB'); // model syncing file
+const { initDB } = require('./src/config/init-db'); // Import the initDB function
+const authRoutes = require('./src/routers/auth-routers'); // Import your routes
+const userRoutes =require('./src/routers/user-routers'); // Import your routes
+
 
 (async () => {
     try {
-        await ensureDatabaseExists();  // Step 1: Make sure DB exists
-        await connectDB();             // Step 2: Connect to DB
-        await initDB();                // Step 3: Sync models to DB
-        console.log("✅ App initialization complete");
+        // Initialize the database
+        await initDB();
+        console.log("✅ Database initialized successfully");
 
+        // Middleware to handle errors globally
+        app.use((err, req, res, next) => {
+            console.error("❌ Error:", err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        });
 
         // Middleware setup
-        app.use(express.json()); // For parsing application/json
-        const authRoutes = require('./src/routers/routers'); // Import your routes
-        app.use('/api/auth', authRoutes.router); // Use the auth routes
+        app.use(express.json());
+
+        app.use('/api/auth', authRoutes); // Use the auth routes
+        app.use('/api/users', userRoutes); // Use the user routes
 
         // Now start your server
         const PORT = process.env.PORT || 3000;

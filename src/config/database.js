@@ -39,8 +39,11 @@ const connectDB = async () => {
     }
 };
 
+// ensureDatabaseExists();
+// connectDB();
+
 module.exports = {
-    ensureDatabaseExists,
-    connectDB,
     sequelize,
+    ensureDatabaseExists,
+    connectDB
 };
